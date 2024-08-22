@@ -38,6 +38,24 @@ body {
   background-position: center;
 }
 
+.edit {
+  width: 100px;
+  }
+
+.edit-btn {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background-color: transparent;
+  background-image: url("../img/edit-png.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+  left: 50px;
+}
+
 .delete.is-visible {
   width: 10px;
   display: table-cell;

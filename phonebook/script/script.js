@@ -73,13 +73,13 @@ return main;
 const createButtonsGroup = (params) => {
     const  btnWrapper = document.createElement('div');
     btnWrapper.classList.add('btn-wrapper');
+
 const btns = params.map(({className, type, text}) => {
     const button = document.createElement('button');
     button.className = className;
     button.type = type;
     button.textContent = text;
-    
-    return button;
+        return button;
 });
 
 btnWrapper.append(...btns);
@@ -88,7 +88,8 @@ btnWrapper.append(...btns);
         btnWrapper,
         btns,
     }
-}
+};
+
 const createTable = () => {
 const table = document.createElement('table');
 table.classList.add('table', 'table-striped');
@@ -99,6 +100,7 @@ tHead.insertAdjacentHTML('beforeend',
             <th> Имя</th>
             <th> Фамилия</th>
             <th> Телефон</th>
+            <th class = 'edit'> Редактировать </th>
     </tr>`
 );
 
@@ -158,11 +160,11 @@ overlay.append(form);
 return {
     overlay,
     form,
-}
+};
 };
 
 
-const renderPhoneBoor = (app, title) => {
+const renderPhoneBook = (app, title) => {
 
 const header = createHeader();
 const footer = createFooter();
@@ -191,8 +193,10 @@ header.headerContainer.append(logo);
 footer.footerContainer.append(footerLogo);
 
 return {
-    list : table.tBody
-}
+    list : table.tBody, logo,
+    btnAdd : buttonGroup.btns[0],
+    formOverlay : form.overlay,
+};
 
 };
 
@@ -201,10 +205,10 @@ const createRow = ({name : firstName, surname, phone}) => {
 
     const tdDel = document.createElement('td');
     tdDel.classList.add('delete');
-
     const buttonDel = document.createElement('button');
     buttonDel.classList.add('dell-icon');
     tdDel.append(buttonDel);
+
 
     const tdName = document.createElement('td');
     tdName.textContent = firstName;
@@ -216,9 +220,14 @@ const createRow = ({name : firstName, surname, phone}) => {
     const phoneLink = document.createElement('a');
     phoneLink.href = `tel:${phone}`;
     phoneLink.textContent = phone;
+    tr.phoneLink = phoneLink;
     tdPhone.append(phoneLink);
 
-tr.append(tdDel, tdName, tdSurName , tdPhone );
+    const tdEdit = document.createElement('td');
+    const editBtn = document.createElement('button');
+    editBtn.classList.add('edit-btn');
+    tdEdit.append(editBtn);
+tr.append(tdDel, tdName, tdSurName , tdPhone, tdEdit);
 
     return tr;
 }
@@ -226,15 +235,45 @@ tr.append(tdDel, tdName, tdSurName , tdPhone );
 const renderContacts = (elem, data) => {
     const allRow = data.map(createRow);
     elem.append(...allRow);
+    return allRow;
 };
+
+const hoverRow = (allRow, logo) => {
+    const text = logo.textContent;
+    allRow.forEach(contact => {
+        contact.addEventListener('mouseenter', ()=> {
+            logo.textContent = contact.phoneLink.textContent;
+        });
+        contact.addEventListener('mouseleave', () => {
+            logo.textContent = text;
+        });
+        
+    });
+};
+
+
 
 const init = (selectorApp, title) => {
     const app = document.querySelector(selectorApp);
-    const phoneBook = renderPhoneBoor(app, title);
-    const {list} = phoneBook;
-    renderContacts(list, data);
+    const phoneBook = renderPhoneBook(app, title);
+    const {list, logo, btnAdd, formOverlay} = phoneBook;
+    const allRow = renderContacts(list, data);
+    hoverRow(allRow, logo);
+    
+    
 
-}
+    btnAdd.addEventListener('click', () => {
+        formOverlay.classList.add('is-visible');
+    });
+
+    form.addEventListener('click', event => {
+        event.stopImmediatePropagation();
+    });
+
+    formOverlay.addEventListener('click', () => {
+        formOverlay.classList.remove('is-visible');
+    });
+};
 
 
 
