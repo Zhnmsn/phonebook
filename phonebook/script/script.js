@@ -141,8 +141,6 @@ form.insertAdjacentHTML('beforeend', `
     
     `)
 
-
-
 const buttonGroup = createButtonsGroup([
     {
         className : 'btn btn-primary mr-3',
@@ -157,8 +155,7 @@ const buttonGroup = createButtonsGroup([
 ]);
 form.append(...buttonGroup.btns);
 overlay.append(form);
-return {
-    overlay,
+return { overlay, 
     form,
 };
 };
@@ -195,6 +192,7 @@ footer.footerContainer.append(footerLogo);
 return {
     list : table.tBody, logo,
     btnAdd : buttonGroup.btns[0],
+    btnDel : buttonGroup.btns[1],
     formOverlay : form.overlay,
 };
 
@@ -202,6 +200,7 @@ return {
 
 const createRow = ({name : firstName, surname, phone}) => {
     const tr = document.createElement('tr');
+    tr.classList.add('contact');
 
     const tdDel = document.createElement('td');
     tdDel.classList.add('delete');
@@ -256,23 +255,43 @@ const hoverRow = (allRow, logo) => {
 const init = (selectorApp, title) => {
     const app = document.querySelector(selectorApp);
     const phoneBook = renderPhoneBook(app, title);
-    const {list, logo, btnAdd, formOverlay} = phoneBook;
+    const {list, logo, btnAdd, btnDel, formOverlay} = phoneBook;
     const allRow = renderContacts(list, data);
     hoverRow(allRow, logo);
     
-    
+    const form = createForm();
 
     btnAdd.addEventListener('click', () => {
         formOverlay.classList.add('is-visible');
     });
 
-    form.addEventListener('click', event => {
-        event.stopImmediatePropagation();
+  //  
+    formOverlay.addEventListener('click', e => {
+        const target = e.target;
+        if(target === formOverlay || target.closest('.close')) {
+            formOverlay.classList.remove('is-visible');
+        }
+        
     });
 
-    formOverlay.addEventListener('click', () => {
-        formOverlay.classList.remove('is-visible');
+    const body = document.querySelector('body');
+    body.addEventListener('click', e => {
+        console.log(e.target);
+    })
+
+    btnDel.addEventListener('click', () => {
+        document.querySelectorAll('.delete').forEach( del => {
+            del.classList.toggle('is-visible');
+        });
     });
+
+    list.addEventListener('click', e => {
+        const target = e.target;
+        if(target.closest('.dell-icon')) {
+            target.closest('.contact').remove();
+        }
+    });
+
 };
 
 
