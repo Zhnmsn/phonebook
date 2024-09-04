@@ -97,8 +97,8 @@ const tHead = document.createElement('thead');
 tHead.insertAdjacentHTML('beforeend', 
     `<tr> 
             <th class= 'delete'> Удалить </th>
-            <th> Имя</th>
-            <th> Фамилия</th>
+            <th class= 'colName'> Имя</th>
+            <th class= 'colSurName'> Фамилия</th>
             <th> Телефон</th>
             <th class = 'edit'> Редактировать </th>
     </tr>`
@@ -211,10 +211,10 @@ const createRow = ({name : firstName, surname, phone}) => {
 
     const tdName = document.createElement('td');
     tdName.textContent = firstName;
-
+    
     const tdSurName = document.createElement('td');
     tdSurName.textContent = surname;
-
+    
     const tdPhone = document.createElement('td');
     const phoneLink = document.createElement('a');
     phoneLink.href = `tel:${phone}`;
@@ -226,7 +226,7 @@ const createRow = ({name : firstName, surname, phone}) => {
     const editBtn = document.createElement('button');
     editBtn.classList.add('edit-btn');
     tdEdit.append(editBtn);
-tr.append(tdDel, tdName, tdSurName , tdPhone, tdEdit);
+tr.append(tdDel, tdName, tdSurName, tdPhone, tdEdit);
 
     return tr;
 }
@@ -277,7 +277,11 @@ const init = (selectorApp, title) => {
     const body = document.querySelector('body');
     body.addEventListener('click', e => {
         console.log(e.target);
-    })
+    });
+
+    
+const table = document.querySelector('table');
+
 
     btnDel.addEventListener('click', () => {
         document.querySelectorAll('.delete').forEach( del => {
@@ -292,6 +296,25 @@ const init = (selectorApp, title) => {
         }
     });
 
+        const sortedRowsName = Array.from(table.rows).slice(1).sort((rowA, rowB) => 
+        rowA.cells[0].innerHTML > rowB.cells[0].innerHTML ? 1 : -1) ;
+        table.addEventListener('click', e => {
+            const target = e.target;
+            if(target.closest('.colName')) {
+                table.tBodies[0].append(...sortedRowsName);
+            }
+        });
+        
+        const sortedRowsSurName = Array.from(table.rows).slice(1).sort((rowA, rowB) =>
+            rowA.cells[1].innerHTML > rowB.cells[1].innerHTML ? 1 : -1) ;
+            table.addEventListener('click', e => {
+                const target = e.target;
+                if(target.closest('.colSurName')) {
+                    
+                    table.tBodies[0].append(...sortedRowsSurName);
+                }
+            });   
+            
 };
 
 
