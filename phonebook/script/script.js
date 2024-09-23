@@ -1,31 +1,37 @@
 "use strict"
 
-const data = [
-    {
-      name: 'Иван',
-      surname: 'Петров',
-      phone: '+79514545454',
-    },
-    {
-      name: 'Игорь',
-      surname: 'Семёнов',
-      phone: '+79999999999',
-    },
-    {
-      name: 'Семён',
-      surname: 'Иванов',
-      phone: '+79800252525',
-    },
-    {
-      name: 'Мария',
-      surname: 'Попова',
-      phone: '+79876543210',
-    },
-  ];
+
+    
 {
+    
+    const getStorage = (key) => {
+        const emptyArr = [];
+        const localData = JSON.parse(localStorage.getItem(key));
+        if(localData === null) {
+            return emptyArr;
+        }
+        return localData;
+        };
+    
+    const setStorage = (key, obj) => {
+        const localData = getStorage(key);
+        localData.push(obj);
+        let setNewContact = localStorage.setItem('data', JSON.stringify(localData));
+        return setNewContact;
+    };
+        
+    const removeStorage = (phone) => {
+        const localData = getStorage('data');
+        for(let i=0; i<localData.length; i++) {
+            if(localData[i].phone === phone) {
+                    localData.splice(i, 1);
+                }
+        }  localStorage.setItem('data', JSON.stringify(localData));
+};
+
+
 const addContactData = (contact) => {
-    data.push(contact);
-    console.log(data);
+    setStorage('data', contact);
 }
 
 const createContainer = () => {
@@ -237,8 +243,8 @@ tr.append(tdDel, tdName, tdSurName, tdPhone, tdEdit);
     return tr;
 }
 
-const renderContacts = (elem, data) => {
-    const allRow = data.map(createRow);
+const renderContacts = (elem, localData) => {
+    const allRow = localData.map(createRow);
     elem.append(...allRow);
     return allRow;
 };
@@ -249,10 +255,17 @@ const hoverRow = (allRow, logo) => {
         contact.addEventListener('mouseenter', ()=> {
             logo.textContent = contact.phoneLink.textContent;
         });
+
         contact.addEventListener('mouseleave', () => {
             logo.textContent = text;
         });
-        
+
+        contact.addEventListener('click', (e)=> {
+            if(e.target.closest('.dell-icon')) {
+                e.target.closest('.contact').remove();
+                removeStorage(contact.phoneLink.textContent); // удаление контакта по телефонному номеру
+                }
+        });
     });
 };
 
@@ -267,9 +280,6 @@ const modalControl = (btnAdd, formOverlay) => {
 
     btnAdd.addEventListener('click', openModal);
         
-    
-
-  //  
     formOverlay.addEventListener('click', e => {
         const target = e.target;
         if(target === formOverlay || target.closest('.close')) {
@@ -281,20 +291,15 @@ const modalControl = (btnAdd, formOverlay) => {
     };
 };
 
+
 const deleteControl = (btnDel, list) => {
     btnDel.addEventListener('click', () => {
-        document.querySelectorAll('.delete').forEach( del => {
+            document.querySelectorAll('.delete').forEach( del => {
             del.classList.toggle('is-visible');
         });
     });
-
-    list.addEventListener('click', e => {
-        const target = e.target;
-        if(target.closest('.dell-icon')) {
-            target.closest('.contact').remove();
-        }
-    });
 };
+
 const addContactPage = (contact, list) => {
     list.append(createRow(contact));
 };
@@ -312,45 +317,59 @@ const formControl = (form, list, closeModal) => {
     });
 };
 
-
 const init = (selectorApp, title) => {
     const app = document.querySelector(selectorApp);
     const {list, form, logo, btnAdd, btnDel, formOverlay} = renderPhoneBook(app, title);
 
-    const allRow = renderContacts(list, data);
+    const allRow = renderContacts(list, getStorage('data'));
     const {closeModal} = modalControl(btnAdd, formOverlay);
     hoverRow(allRow, logo);
     
     deleteControl(btnDel, list);
     formControl(form, list, closeModal);
 
-    
-    
-        const table = document.querySelector('table');
-
-        const sortedRowsName = Array.from(table.rows).slice(1).sort((rowA, rowB) => 
-        rowA.cells[0].innerHTML > rowB.cells[0].innerHTML ? 1 : -1) ;
-        table.addEventListener('click', e => {
-            const target = e.target;
-            if(target.closest('.colName')) {
-                table.tBodies[0].append(...sortedRowsName);
-            }
-        });
         
-        const sortedRowsSurName = Array.from(table.rows).slice(1).sort((rowA, rowB) =>
-            rowA.cells[1].innerHTML > rowB.cells[1].innerHTML ? 1 : -1) ;
+    const table = document.querySelector('table'); 
+    let keyArr = [];
+
+        const sortedRowsName = Array.from(table.rows).slice(1).sort((rowA, rowB) =>
+            rowA.cells[1].textContent > rowB.cells[1].textContent ? 1 : -1) ;
+
             table.addEventListener('click', e => {
                 const target = e.target;
-                if(target.closest('.colSurName')) {
-                    
-                    table.tBodies[0].append(...sortedRowsSurName);
+                    if(target.closest('.colName')) {
+                    keyArr.push(sortedRowsName);
+                    table.tBodies[0].append(...sortedRowsName);
+                    localStorage.setItem('sortName', JSON.stringify(keyArr));
                 }
             });   
             
+        const sortedRowsSurName = Array.from(table.rows).slice(1).sort((rowA, rowB) =>
+            rowA.cells[2].textContent > rowB.cells[2].textContent ? 1 : -1) ;
+            table.addEventListener('click', e => {
+                const target = e.target;
+                if(target.closest('.colSurName')) {
+                    keyArr.push(sortedRowsSurName);
+                    table.tBodies[0].append(...sortedRowsSurName);
+                    localStorage.setItem('sortSurName', JSON.stringify(keyArr));
+                }
+            }); 
+            
+            window.addEventListener('DOMContentLoaded', () => {
+                console.log('DOMContentLoaded');
+                if(localStorage.getItem('sortName')) {
+                    table.tBodies[0].append(...sortedRowsName);
+                };
+            });
+
+            window.addEventListener('DOMContentLoaded', () => {
+                console.log('DOMContentLoaded');
+                if(localStorage.getItem('sortSurName')) {
+                    table.tBodies[0].append(...sortedRowsSurName);
+                };
+            });
+            
 };
-
-
-
 
     window.phoneBookInit = init;
 }
