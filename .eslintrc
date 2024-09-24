@@ -41,6 +41,7 @@
       "error",
       "always"
     ],
+    "sourceType": "module",
     "space-in-parens": [
       "error",
       "never"
